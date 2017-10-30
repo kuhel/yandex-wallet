@@ -8,7 +8,7 @@ const cardsJson = require('./data_cards');
 const transactionsJson = require('./data_transactions');
 const usersJson = require('./data_users');
 
-const {MONGO} = require('../../config-env');
+const config = require('config');
 
 mongoose.Promise = global.Promise;
 
@@ -29,7 +29,7 @@ const restoreDatabase = done => {
 };
 
 before(done => {
-    mongoose.connect(MONGO, {
+    mongoose.connect(config.get('db.url'), {
         useMongoClient: true,
         config: {
             autoIndex: false

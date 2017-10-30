@@ -20,10 +20,11 @@ const TransactionsContext = require('./data/transactions_context');
 const UsersContext = require('./data/users_context');
 
 // env config
-const {MONGO} = require('../config-env');
-const PORT = process.env.NODE_PORT || 4000;
-const PORT_SSL = process.env.NODE_PORT_SSL || 4001;
-const HTTPS = process.env.NODE_HTTPS || false;
+const config = require('config');
+const MONGO = config.get('db.url');
+const PORT = config.get('server.port');
+const PORT_SSL = config.get('server.https.port');
+const HTTPS = config.get('server.isHttps');
 
 mongoose.Promise = global.Promise;
 const app = new Koa();

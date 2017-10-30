@@ -1,7 +1,7 @@
 const passport = require('koa-passport');
 const router = require('koa-router')();
 const jwt = require('jwt-simple');
-const {JWT_SECRET} = require('../../config-env');
+const config = require('config');
 
 /**
  * Create token for user information
@@ -16,7 +16,7 @@ const getTokenForUser = payload => {
     return jwt.encode({
         id: payload.id,
         exp
-    }, JWT_SECRET);
+    }, config.get('auth.secret'));
 }
 
 router.get('/verify', async (ctx, next) => await passport.authenticate('jwt', async (err, user) => {

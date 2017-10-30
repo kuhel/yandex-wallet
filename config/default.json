@@ -1,0 +1,15 @@
+{
+    "server": {
+        "port": 4000,
+        "isHttps": true,
+        "https": {
+            "port": 4001
+        }
+    },
+    "db": {
+        "url": "mongodb://localhost/wallet"
+    },
+    "auth": {
+        "secret": "jjskskKKKAjajenwfpaP"
+    }
+}
