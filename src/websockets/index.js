@@ -8,6 +8,10 @@ export default ({
   
   _store: null,
   
+  _pingInterval: null,
+  
+  _pingIntervalTime: 1000 * 30,
+  
   init(store) {
     this._store = store;
   },
@@ -46,6 +50,8 @@ export default ({
     this._ws.onerror = () => console.log('WS connection error');
     this._ws.onclose = () => console.log('WS connection is closed');
     this._ws.onmessage = message => this._handleMessage(message);
+    
+    this._pingInterval = setInterval(() => this.ping(), this._pingIntervalTime);
   },
   
   disconnect() {
@@ -56,6 +62,18 @@ export default ({
     
     this._ws.close();
     this._ws = null;
+    clearInterval(this._pingInterval);
+    this._pingInterval = null;
+  },
+  
+  ping() {
+    if (!this._ws) {
+      console.log('WS can not ping server - disconnected');
+      return;
+    }
+    
+    console.log('WS ping');
+    this._ws.send('ping');
   },
   
   _handleMessage(message) {
