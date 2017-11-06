@@ -5,7 +5,7 @@ const moment = require('moment');
 const Extra = require('telegraf/extra');
 const Markup = require('telegraf/markup');
 const axios = require('axios');
-const {DOMAIN} = require('../config-env'); // TODO Change for production
+const addPayment = require('../controllers/transactions/add-payment');
 
 
 const CURRENCY_ENUM = {
@@ -103,7 +103,11 @@ class TelegramBot {
         this.bot.command('/mobile', async (ctx) => {
             const params = ctx.message.text.split(' ');
             const pay = await this.makeMobilePayment(user, params[1], params[2], params[3]);
-        // ctx.reply(pay);
+            if (pay.status === 201) {
+                ctx.reply(`С вашей 💳  **** **** **** ${pay.card.cardNumber.substr(pay.card.cardNumber.length - 4)} было переведено ${params[3]}${pay.card.currency} на 📱 ${params[2]}`);
+            } else {
+                ctx.reply('🙄 Something bad happened with request')
+            }
         });
     }
 
@@ -122,26 +126,27 @@ class TelegramBot {
                 '$regex': `${cardNumber}$`
             }
         });
-        const payment = {
-            phone: phone,
-            amount: amount
-        };
-        const token = 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjU5ZjI5OWE0ZDYxMWFkMDFkMDExNWIwOSIsImV4cCI6MTUxMDQwMTY1NjI1NH0.snewL_Rkavr_DYQilo5tb3K4fqSphWx3Mkb8tjYEkmI';
-        try {
-            const {data} = await axios
-                .post(`http://${DOMAIN}/api/cards/${card.id}/pay`, payment, {
-                    headers: {
-                        authorization: token
-                    }
-                });
-            if (data.status === 'success' || data.status === 200) {
-                return `Mobile payment to the 📱 ${payment.phone} was fullfilled for amount of 💰 ${payment.amount}`
-            } else {
-                return '🙄 Something bad happened with request'
-            }
-        } catch (err) {
-            return err.message;
+        const contextMockForPayment = {
+            cards: cards,
+            users: this.users(),
+            transactions: this.transactions(user.id),
+            params: {
+                id: card.id
+            },
+            request: {
+                body: {
+                    phone: phone,
+                    amount: amount
+                },
+            },
+            status: null,
+            isTelegramPayment: true
         }
+        const pay = await addPayment(contextMockForPayment);
+        return {
+            status: pay,
+            card
+        };
     }
 
     /**
@@ -312,7 +317,7 @@ Make sure you inserted correct key.`);
         if (notificationParams.type == 'paymentMobile') {
             message = `С вашей 💳  **** **** **** ${cardNumberSecure} было переведено ${amount}${card.currency} на 📱 ${phone}`;
         } else {
-            message = `На вашу 💳  **** **** **** ${cardNumberSecure}  поступило ${amount}${card.currency}`;
+            message = `На вашу 💳  **** **** **** ${cardNumberSecure} поступило ${amount}${card.currency}`;
         }
         if (chatId) {
             this.bot.telegram.sendMessage(chatId, message);

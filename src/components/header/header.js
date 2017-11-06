@@ -80,6 +80,7 @@ class Header extends React.Component {
 				{auth.isAuth && 
 					<Button bgColor='#0088cc' textColor='#fff' onClick={this.onClick}>Telegram</Button>
 				}
+				{auth.isAuth && <Currency />}
 				{this.state.isTelegramModalVisible ? <Popup onCloseClick={this.onCloseClick}>
 					<div>
 						<h3 style={{marginBottom: '20px', marginTop: '20px'}}>Ваш секретный ключ: <code>{user.telegramKey}</code> </h3>
@@ -90,7 +91,6 @@ class Header extends React.Component {
 					</div>
 					<Button bgColor='#0088cc' textColor='#fff'><a style={{color:'#fff'}} target="_blank" href={`http://telegram.me/YANMBot`}>Перейти к боту</a></Button>
 				</Popup> : null}
-				{auth.isAuth && <Currency />}
 				<UserInfo isAuth={auth.isAuth} userName={auth.userName} onSignOutClick={this.props.onSignOutClick}/>
 			</HeaderLayout>
 		)
