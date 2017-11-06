@@ -52,7 +52,7 @@ class Payme extends Component {
         
         const {
             params, loadingError, card2UserState, contract, isLoading, userName, cards, currencyState,
-            onPaymentSubmit, onRepeatPaymentClick, returnToTrans, onChangeActiveCard,
+            onPaymentSubmit, onRepeatPaymentClick, returnToTrans, onChangeActiveCard, activeCardId
         } = this.props;
         
         const {isValidGUID} = this.state;
@@ -82,6 +82,7 @@ class Payme extends Component {
         if (contract && card2UserState.stage === 'contract')
             return (
               <PaymeContract
+                activeCardId = {activeCardId}
                 guid={ params.guid }
                 contract={ contract }
                 currencyState={currencyState}
@@ -121,6 +122,7 @@ const mapStateToProps = state => ({
     isLoading: state.mrs.isLoading,
     contract: state.mrs.contract,
     cards: getPreparedCards(state),
+    activeCardId: state.cards.activeCardId,
     userName: state.auth.userName,
     currencyState: state.currency,
 });

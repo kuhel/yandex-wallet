@@ -114,16 +114,18 @@ class PaymeContract extends Component {
 	constructor(props) {
 		super(props);
 		
-		const activeCardIndex = 0;
+		const {activeCardId, cardsList} = props;
+
+		const activeCardIndex = cardsList ? cardsList.findIndex(card => card.id ===activeCardId) : 0;
 		
 		const sumFrom = Number(props.contract.sum);
     
-    const sumTo = props.cardsList[activeCardIndex]
+    	const sumTo = cardsList[activeCardIndex]
 			? convertCurrency({
 					currencyState: props.currencyState,
 					sum: sumFrom,
 					convertFrom: props.contract.currency,
-					convertTo: props.cardsList[activeCardIndex].currency,
+					convertTo: cardsList[activeCardIndex].currency,
 				})
 			: 0;
 
@@ -330,6 +332,7 @@ PaymeContract.propTypes = {
 	currencyState: PropTypes.object,
 	onPaymentSubmit: PropTypes.func.isRequired,
 	onChangeActiveCard: PropTypes.func.isRequired,
+	activeCardId: PropTypes.string
 };
 
 export default PaymeContract;
