@@ -92,6 +92,9 @@ const requiredAuth = async (ctx, next) => await passport.authenticate('jwt', asy
 			ctx.throw(401, err || 'auth is required');
 
 		ctx.params.userId = user.id;
+		ctx.user = {
+			telegramKey: user.telegramKey
+		};
 		ctx.cards = new CardsContext(user.id);
 		ctx.transactions = new TransactionsContext(user.id);
 		ctx.money_requests = new MoneyRequestsContext(user.id);
