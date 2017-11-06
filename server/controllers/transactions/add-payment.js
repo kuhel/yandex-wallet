@@ -1,5 +1,6 @@
 const addTransaction = require('../add-transaction-method');
 const TelegramBot = require('../../services/telegram-bot');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports = async ctx => {
 	const {id} = ctx.params;
@@ -28,8 +29,8 @@ module.exports = async ctx => {
 	ctx.status = 201;
 
 	if (ctx.isTelegramPayment) {
-		return ctx.status;
-	} else {
+		return 201;
+	} else if (!ctx.request.body.isTest) {
 		const user = await ctx.users.getOne({
 			_id: new ObjectId(card.userId)
 		});
@@ -43,5 +44,6 @@ module.exports = async ctx => {
 		};
 	
 		TelegramBot.sendNotification('notificationParams');
+		return 201;
 	}
 };
