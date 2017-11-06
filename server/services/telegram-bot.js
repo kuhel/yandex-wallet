@@ -134,7 +134,8 @@ class TelegramBot {
             request: {
                 body: {
                     phone: phone,
-                    amount: amount
+                    amount: amount,
+                    isTest: false
                 },
             },
             status: null,
