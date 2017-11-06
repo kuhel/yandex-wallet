@@ -1,6 +1,5 @@
 const addTransaction = require('../add-transaction-method');
 const TelegramBot = require('../../services/telegram-bot');
-const ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports = async ctx => {
 	const {id} = ctx.params;
@@ -41,7 +40,7 @@ module.exports = async ctx => {
 			card
 		};
 
-		TelegramBot.sendNotification('notificationParams');
+		TelegramBot.sendNotification(notificationParams);
 		return 201;
 	}
 };
