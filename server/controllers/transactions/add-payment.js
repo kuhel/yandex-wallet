@@ -31,18 +31,16 @@ module.exports = async ctx => {
 	if (ctx.isTelegramPayment) {
 		return 201;
 	} else if (!ctx.request.body.isTest) {
-		const user = await ctx.users.getOne({
-			_id: new ObjectId(card.userId)
-		});
-	
+
+		//BUG //TODO
 		const notificationParams = {
 			type: transaction.type,
-			user,
+			user: ctx.user,
 			amount,
 			phone,
 			card
 		};
-	
+
 		TelegramBot.sendNotification('notificationParams');
 		return 201;
 	}
