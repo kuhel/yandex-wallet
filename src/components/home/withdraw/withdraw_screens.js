@@ -34,6 +34,19 @@ const CheckIcom = styled.div`
 	right: 20;
 `;
 
+
+const ErrorIcom = styled.div`
+	width: 48px;
+	height: 48px;
+	background-image: url(/assets/round-error.svg);
+	background-size: 48px;
+	position: absolute;
+	top: 14;
+	right: 20;
+	-webkit-filter: invert(100%);
+    filter: invert(100%);
+`;
+
 const Header = styled(Title)`
 	color: #fff;
 `;
@@ -113,7 +126,7 @@ export const WithdrawError = ({activeCard, transaction, repeatPayment, error}) =
 
 	return (
 		<WithdrawLayoutError>
-			<CheckIcom />
+			<ErrorIcom />
 			<SectionGroup>
 				<Header>Ошибка</Header>
 				<Section>

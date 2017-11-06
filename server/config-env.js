@@ -1,5 +1,6 @@
 /*** Define CONST */
-const MONGO = process.env.NODE_MONGO || 'mongodb://localhost/wallet';
+
+const MONGO = process.env.NODE_MONGO || 'mongodb://docker/test_yandex_wallet';
 const JWT_SECRET = process.env.NODE_JWT_SECRET || 'jjskskKKKAjajenwfpaP';
 const DOMAIN = process.env.NODE_DOMAIN || 'localhost';
 const PORT = process.env.NODE_PORT || 4000;

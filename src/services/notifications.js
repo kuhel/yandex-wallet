@@ -15,8 +15,8 @@ export default ({
 			window.onfocus = ()=>{
 				setTimeout(()=>{
 					self.changeFavicon(self._favicon_origin);
-					self.changeTitle(self._title_origin);
-				}, 1000);
+					self.changeTitle(self._title_origin);	
+				}, 10);
 				
 			};
 		}

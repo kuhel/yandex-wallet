@@ -37,21 +37,18 @@ const userSchema = new Schema({
 
 userSchema.pre('save', function(next) {
     const user = this;
-    if (this.isNew)
+    if (user.isNew)
         bcrypt.genSalt(10, (err, salt) => {
-            if (err)
-                return next(err);
-            else
-                bcrypt.hash(user.password, salt, null, (err, hash) => {
-                    if (err)
-                        return next(err);
-                    else {
-                        user.password = hash;
-                        
-                    }
-                });
+            if (err) return next(err);
+
+            bcrypt.hash(user.password, salt, null, (err, hash) => {
+                if (err) return next(err);
+
+                user.password = hash;
+                next();
+            });
         });
-    next();
+    else next();
 });
 
 // Methods

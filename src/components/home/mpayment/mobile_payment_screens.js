@@ -27,6 +27,18 @@ const SuccessIcon = styled.div`
 	right: 32;
 `;
 
+const ErrorIcom = styled.div`
+	width: 48px;
+	height: 48px;
+	background-image: url(/assets/round-error.svg);
+	background-size: 48px;
+	position: absolute;
+	top: 14;
+	right: 20;
+	-webkit-filter: invert(100%);
+    filter: invert(100%);
+`;
+
 const Header = styled.div`
 	font-size: 24px;
 `;
@@ -118,6 +130,7 @@ export const MobilePaymentError = ({activeCard, transaction, repeatPayment, erro
 
 	return (
 		<MobilePaymentErrorLayout>
+			<ErrorIcom/>
 			<Header>МегаФон (Россия)</Header>
 			<Sum>{sum} {activeCard.currencySign}</Sum>
 			<CommissionTips>В том числе комиссия {commission} {activeCard.currencySign}</CommissionTips>

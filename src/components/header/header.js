@@ -72,6 +72,7 @@ class Header extends React.Component {
 
 	render() {
 		const {user, auth} = this.props;
+		const botName = ['test', 'dev'].includes(process.env.NODE_ENV)? 'KuhelTestBot': 'YANMBot';
 
 		return (
 			<HeaderLayout>
@@ -89,7 +90,7 @@ class Header extends React.Component {
 							<code style={{background:'#FFFACD'}}>/getupdates {user.telegramKey}</code>
 						</div>
 					</div>
-					<Button bgColor='#0088cc' textColor='#fff'><a style={{color:'#fff'}} target="_blank" href={`http://telegram.me/YANMBot`}>Перейти к боту</a></Button>
+					<Button bgColor='#0088cc' textColor='#fff'><a style={{color:'#fff'}} target="_blank" href={`http://telegram.me/${botName}`}>Перейти к боту</a></Button>
 				</Popup> : null}
 				<UserInfo isAuth={auth.isAuth} userName={auth.userName} onSignOutClick={this.props.onSignOutClick}/>
 			</HeaderLayout>

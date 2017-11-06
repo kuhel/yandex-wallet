@@ -64,7 +64,7 @@ export default ({
       switch (type) {
         
         case 'CARD_IDS': {
-          notifications.sendNotification('notification');
+          notifications.sendNotification('Я обновился 🎁');
           const { activeCardId } = this._store.getState().cards;
           data.forEach((cardId) => {
             this._store.dispatch(fetchCard(cardId));

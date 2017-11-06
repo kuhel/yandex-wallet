@@ -1,6 +1,5 @@
-const ObjectId = require('mongoose').Types.ObjectId;
 const addTransaction = require('../add-transaction-method');
-const TelegramBot = require('../../services/telegram-bot');
+// const TelegramBot = require('../../services/telegram-bot');
 
 module.exports = async ctx => {
 	const {id} = ctx.params;

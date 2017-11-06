@@ -1,14 +1,10 @@
 const bot = require('../../libs/bot');
-const ObjectId = require('mongoose').Types.ObjectId;
 const TelegramBot = require('../../services/telegram-bot');
 
 module.exports = async ctx => {
-	// TODO must user user from ctx
-	const user = await ctx.users.getOne({
-		_id: new ObjectId(ctx.params.userId)
-	});
+	const user = ctx.user;
 	if (user.chatId) {
 		TelegramBot.initChatId(user);
 	}
-	ctx.body = await ctx.cards.getAll()
+	ctx.body = await ctx.cards.getAll();
 };

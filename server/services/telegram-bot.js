@@ -4,9 +4,7 @@ const UsersContext = require('../data/users_context');
 const moment = require('moment');
 const Extra = require('telegraf/extra');
 const Markup = require('telegraf/markup');
-const axios = require('axios');
 const addPayment = require('../controllers/transactions/add-payment');
-
 
 const CURRENCY_ENUM = {
     'RUB': '🇷🇺 р.',
@@ -303,7 +301,6 @@ Make sure you inserted correct key.`);
         ));
     }
 
-
     /**
     * Отправляет Telegram-оповещение пользователю
     *
@@ -314,7 +311,7 @@ Make sure you inserted correct key.`);
         const {card, phone, amount} = notificationParams;
         const cardNumberSecure = card.cardNumber.substr(card.cardNumber.length - 4);
         var message;
-        if (notificationParams.type == 'paymentMobile') {
+        if (notificationParams.type === 'paymentMobile') {
             message = `С вашей 💳  **** **** **** ${cardNumberSecure} было переведено ${amount}${card.currency} на 📱 ${phone}`;
         } else {
             message = `На вашу 💳  **** **** **** ${cardNumberSecure} поступило ${amount}${card.currency}`;
@@ -323,7 +320,6 @@ Make sure you inserted correct key.`);
             this.bot.telegram.sendMessage(chatId, message);
         }
     }
-
 }
 
 module.exports = new TelegramBot();
