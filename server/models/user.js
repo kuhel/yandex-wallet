@@ -47,10 +47,11 @@ userSchema.pre('save', function(next) {
                         return next(err);
                     else {
                         user.password = hash;
-                        next();
+                        
                     }
                 });
         });
+    next();
 });
 
 // Methods
