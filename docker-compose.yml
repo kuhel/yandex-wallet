@@ -45,6 +45,7 @@ services:
     environment:
       - NODE_JWT_SECRET=jksjksajkKJSJKjksajksafjkJKSjkasjkqwbkDJKBLJKSdjkasdjksadjk
       - NODE_MONGO=mongodb://db/yandex_wallet
+      - NODE_DOMAIN=wallet.kroniak.net
       - VIRTUAL_HOST=wallet.kroniak.net
       - LETSENCRYPT_HOST=wallet.kroniak.net
       - LETSENCRYPT_EMAIL=me@kroniak.net
