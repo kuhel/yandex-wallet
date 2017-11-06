@@ -1,5 +1,5 @@
 const addTransaction = require('../add-transaction-method');
-// const TelegramBot = require('../../services/telegram-bot');
+const TelegramBot = require('../../services/telegram-bot');
 
 module.exports = async ctx => {
 	const {id} = ctx.params;
@@ -42,6 +42,6 @@ module.exports = async ctx => {
 			card
 		};
 	
-		TelegramBot.sendNotification(notificationParams);
+		TelegramBot.sendNotification('notificationParams');
 	}
 };

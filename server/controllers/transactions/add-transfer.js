@@ -37,7 +37,7 @@ module.exports = async ctx => {
 		type: transaction.type,
 		user,
 		amount,
-		card: toCard
+		card: card
 	};
 
 	TelegramBot.sendNotification(notificationParams);
