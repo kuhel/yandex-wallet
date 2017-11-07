@@ -1,3 +1,4 @@
+const SocketManager = require('../websockets/socketManager');
 const logger = require('../libs/logger')('cards-router');
 const currency = require('../services/currency');
 
@@ -42,13 +43,21 @@ const addTransaction = async (transaction, ctx, card, toCard) => {
 	// добавляем транзакцию и сохраняем ссылку
 	const savedTransaction = await ctx.transactions.add(transaction);
 
-	try { // транзакция добавилась, необходимо обновить баланс карты
+	try {
+		// транзакция добавилась, необходимо обновить баланс карты
 		await ctx.cards.affectBalance(card.id, transaction);
-  
+
 		// for ws broadcast
-    ctx.broadcastCards = ctx.broadcastCards || {};
-    ctx.broadcastCards[card.userId] = ctx.broadcastCards[card.userId] || [];
-    ctx.broadcastCards[card.userId].push(card.id);
+		if (ctx.isTelegramPayment) {
+			SocketManager.broadcast(card.userId, JSON.stringify({
+				type: 'CARD_IDS',
+				data: [card.id],
+			}));
+		} else {
+			ctx.broadcastCards = ctx.broadcastCards || {};
+			ctx.broadcastCards[card.userId] = ctx.broadcastCards[card.userId] || [];
+			ctx.broadcastCards[card.userId].push(card.id);
+		}
 
 		// добавляем вторую транзакцию, если надо 
 		if (transaction.type === 'card2Card') {
