@@ -5,6 +5,7 @@ const moment = require('moment');
 const Extra = require('telegraf/extra');
 const Markup = require('telegraf/markup');
 const addPayment = require('../controllers/transactions/add-payment');
+const logger = require('../libs/logger')('Telegram');
 
 const CURRENCY_ENUM = {
     'RUB': '🇷🇺 р.',
@@ -51,9 +52,16 @@ class TelegramBot {
     */
     async userInstance(id) {
         const _id = id.toString();
-        return await this.users().getOne({
+        try {
+            const user = await this.users().getOne({
                 chatId: _id
             });
+            if (user) {
+                return user;
+            }
+        } catch (err) {
+            logger.error(err.message);
+        }
     }
 
     /**
@@ -63,9 +71,16 @@ class TelegramBot {
     */
     async getUserByTelegramKey(telegramKey) {
         const _key = telegramKey.toString();
-        return await this.users().getOne({
+        try {
+            const user = await this.users().getOne({
                 telegramKey: _key
             });
+            if (user) {
+                return user;
+            }
+        } catch (err) {
+            logger.error(err.message);
+        }
     }
 
     /**
@@ -100,11 +115,15 @@ class TelegramBot {
     mobilePaymentCommand(user) {
         this.bot.command('/mobile', async (ctx) => {
             const params = ctx.message.text.split(' ');
-            const pay = await this.makeMobilePayment(user, params[1], params[2], params[3]);
-            if (pay.status === 201) {
-                ctx.reply(`С вашей 💳  **** **** **** ${pay.card.cardNumber.substr(pay.card.cardNumber.length - 4)} было переведено ${params[3]}${pay.card.currency} на 📱 ${params[2]}`);
-            } else {
-                ctx.reply('🙄 Something bad happened with request')
+            try {
+                const pay = await this.makeMobilePayment(user, params[1], params[2], params[3]);
+                if (pay.status === 201) {
+                    ctx.reply(`С вашей 💳  **** **** **** ${pay.card.cardNumber.substr(pay.card.cardNumber.length - 4)} было переведено ${params[3]}${pay.card.currency} на 📱 ${params[2]}`);
+                } else {
+                    ctx.reply('🙄 Something bad happened with request')
+                }
+            } catch (err) {
+                logger.error(err.message);
             }
         });
     }
@@ -118,33 +137,44 @@ class TelegramBot {
     * 
     */
     async makeMobilePayment(user, cardNumber, phone, amount) {
-        const cards = await this.cards(user.id);
-        const card = await cards.getOne({
-            cardNumber: {
-                '$regex': `${cardNumber}$`
+        try {
+            const cards = await this.cards(user.id);
+            const card = await cards.getOne({
+                cardNumber: {
+                    '$regex': `${cardNumber}$`
+                }
+            });
+            if (card && parseInt(amount, 10) > 0 && phone.length >= 10) {
+                const contextMockForPayment = {
+                    cards: cards,
+                    users: this.users(),
+                    transactions: this.transactions(user.id),
+                    params: {
+                        id: card.id
+                    },
+                    request: {
+                        body: {
+                            phone: phone,
+                            amount: amount
+                        },
+                    },
+                    status: null,
+                    isTelegramPayment: true
+                }
+                const pay = await addPayment(contextMockForPayment);
+                return {
+                    status: pay,
+                    card
+                };
+            } else {
+                return {
+                    status: 400,
+                    card
+                };
             }
-        });
-        const contextMockForPayment = {
-            cards: cards,
-            users: this.users(),
-            transactions: this.transactions(user.id),
-            params: {
-                id: card.id
-            },
-            request: {
-                body: {
-                    phone: phone,
-                    amount: amount
-                },
-            },
-            status: null,
-            isTelegramPayment: true
+        } catch (err) {
+            logger.error(err.message);
         }
-        const pay = await addPayment(contextMockForPayment);
-        return {
-            status: pay,
-            card
-        };
     }
 
     /**
@@ -172,26 +202,30 @@ class TelegramBot {
     * 
     */
     async getTransactions(cardNumber, user, ctx) {
-        const cards = await this.cards(user.id);
-        const card = await cards.getOne({
-            cardNumber: {
-                '$regex': `${cardNumber}$`
-            }
-        });
-        if (card) {
-            const transactions = this.transactions(user.id);
-            const allTransactions = await transactions.getByCardId(card.id);
-            if (allTransactions && allTransactions.length > 0) {
-                ctx.reply(`Here is some of your latest transactions from
+        try {
+            const cards = await this.cards(user.id);
+            const card = await cards.getOne({
+                cardNumber: {
+                    '$regex': `${cardNumber}$`
+                }
+            });
+            if (card) {
+                const transactions = this.transactions(user.id);
+                const allTransactions = await transactions.getByCardId(card.id);
+                if (allTransactions && allTransactions.length > 0) {
+                    ctx.reply(`Here is some of your latest transactions from
 💳 **** **** **** ${cardNumber} 💳 
 
 Transactions:
 ${allTransactions.map((transaction) => `Sum: ${transaction.sum} ${CURRENCY_ENUM[card.currency]} | Type: ${transaction.type} | Time: ${moment(transaction.time).format('H:mm DD/MM/YY ')}`).join('\n')}`);
+                } else {
+                    ctx.reply(`🙄 There are no transactions with this card.`);
+                }
             } else {
-                ctx.reply(`🙄 There are no transactions with this card.`);
+                ctx.reply(`🙄 There are no such card assigned for you.`);
             }
-        } else {
-            ctx.reply(`🙄 There are no such card assigned for you.`);
+        } catch (err) {
+            logger.error(err.message);
         }
     }
 
@@ -202,7 +236,11 @@ ${allTransactions.map((transaction) => `Sum: ${transaction.sum} ${CURRENCY_ENUM[
     */
     getCardsListСommand(user) {
         this.bot.command('/allcards', async (ctx) => {
-            await this.getCardsList(user, ctx);
+            try {
+                await this.getCardsList(user, ctx);
+            } catch (err) {
+                logger.error(err.message);
+            }
         });
     }
 
@@ -213,16 +251,20 @@ ${allTransactions.map((transaction) => `Sum: ${transaction.sum} ${CURRENCY_ENUM[
     * 
     */
     async getCardsList(user, ctx) {
-        const allCards = await this.cards(user.id).getAll();
-        if (allCards && allCards.length > 0) {
-            ctx.reply(allCards.map((card) => `
+        try {
+            const allCards = await this.cards(user.id).getAll();
+            if (allCards && allCards.length > 0) {
+                ctx.reply(allCards.map((card) => `
 💳 **** **** **** ${card.cardNumber.substr(card.cardNumber.length - 4)}
 Money availvable: ${card.balance} ${CURRENCY_ENUM[card.currency]}
 Card will expire ${card.exp}
 __________________________
-            `).join('\n'));
-        } else {
-            ctx.reply(`🙄 There are no such card assigned for you.`);
+                `).join('\n'));
+            } else {
+                ctx.reply(`🙄 There are no such card assigned for you.`);
+            }
+        } catch (err) {
+            logger.error(err.message);
         }
     }
 
@@ -254,22 +296,27 @@ __________________________
         this.bot.command('/getupdates', async (ctx) => {
             const inputTelegramKey = ctx.message.text.split("/getupdates ")[1];
             if (inputTelegramKey) {
-                const user = await this.getUserByTelegramKey(inputTelegramKey);
-                if (user && user.email) {
-                    await this.users().addField({
-                        "email": user.email
-                    }, "chatId", ctx.chat.id);
-                    this.initChatId(user);
-                    ctx.reply(`✅ Cool, you are signed in!
+                try {
+                    const user = await this.getUserByTelegramKey(inputTelegramKey);
+                    if (user && user.email) {
+                        await this.users().addField({
+                            "email": user.email
+                        }, "chatId", ctx.chat.id);
+                        this.initChatId(user);
+                        logger.info(`${user.email} is loggedn in to Bot`);
+                        ctx.reply(`✅ Cool, you are signed in!
 Type: 
 /commands — to see available UI commands
 /cards — to see all availaible cards
 /allcards — to see all availaible cards in inline mode
-/mobile <Last 4 digits of your 💳  number> <Phone Number> <Amount> — pay fro mobile phone
+/mobile <Last 4 digits of your 💳  number> <Phone Number without spaces> <Amount> — pay fro mobile phone
 /last <Last 4 digits of your 💳  number> — to get list of transactions`);
                 } else {
                     ctx.reply(`❌ Sorry, this is not valid secret Telegram key.
 Make sure you inserted correct key.`);
+                    }
+                } catch (err) {
+                    logger.error(err.message);
                 }
             }
         })
@@ -296,9 +343,13 @@ Make sure you inserted correct key.`);
         this.bot.action(/.+/, (ctx, next) => {
             this.getTransactions(ctx.match[0], user, ctx);
         });
-        const allCards = await this.cards(user.id).getAll();
-        return ctx.reply('<b>Select card to view transactions</b>', Extra.HTML().markup((m) => m.inlineKeyboard(allCards.map((card) => m.callbackButton(`💳  ${card.cardNumber.substr(card.cardNumber.length - 4)} — ${CURRENCY_ENUM[card.currency]}`, `${card.cardNumber.substr(card.cardNumber.length - 4)}`)))
-        ));
+        try {
+            const allCards = await this.cards(user.id).getAll();
+            return ctx.reply('<b>Select card to view transactions</b>', Extra.HTML().markup((m) => m.inlineKeyboard(allCards.map((card) => m.callbackButton(`💳  ${card.cardNumber.substr(card.cardNumber.length - 4)} — ${CURRENCY_ENUM[card.currency]}`, `${card.cardNumber.substr(card.cardNumber.length - 4)}`)))));
+        } catch (err) {
+            logger.error(err.message);
+        }
+
     }
 }
 
