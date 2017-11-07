@@ -12,8 +12,6 @@ module.exports = async (ctx) => {
             balance: Number(balance) || 0,
             userId: ctx.params.userId
         };
-        
-        console.log(card);
     
         try {
             await ctx.cards.validate(card);
