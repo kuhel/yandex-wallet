@@ -17,6 +17,7 @@ class TelegramBot {
     constructor() {
         this.bot = require('../libs/bot');
         this.initBotCommands();
+        this.user = null;
     }
 
     /**
@@ -57,6 +58,7 @@ class TelegramBot {
                 chatId: _id
             });
             if (user) {
+                this.user = user;
                 return user;
             }
         } catch (err) {
@@ -76,6 +78,7 @@ class TelegramBot {
                 telegramKey: _key
             });
             if (user) {
+                this.user = user;
                 return user;
             }
         } catch (err) {
@@ -97,26 +100,26 @@ class TelegramBot {
     * @param {Object} user Объект пользователя
     * 
     */
-    initChatId(user) {
-        if (user && user.chatId) {
-            this.commandsList(user);
-            this.getCardsListСommand(user);
-            this.getTransactionsCommand(user);
-            this.cardsButtonsCommand(user);
-            this.mobilePaymentCommand(user);
+    initChatId() {
+        if (this.user && this.user.chatId) {
+            logger.info(`Init command /allcards for ${this.user .email}`);
+            this.commandsList();
+            this.getCardsListСommand();
+            this.getTransactionsCommand();
+            this.cardsButtonsCommand();
+            this.mobilePaymentCommand();
         }
     }
 
     /**
     * Команда списка транзакций по карте
-    * @param {Object} user Объект пользователя
     * 
     */
-    mobilePaymentCommand(user) {
+    mobilePaymentCommand() {
         this.bot.command('/mobile', async (ctx) => {
             const params = ctx.message.text.split(' ');
             try {
-                const pay = await this.makeMobilePayment(user, params[1], params[2], params[3]);
+                const pay = await this.makeMobilePayment(params[1], params[2], params[3]);
                 if (pay.status === 201) {
                     ctx.reply(`С вашей 💳  **** **** **** ${pay.card.cardNumber.substr(pay.card.cardNumber.length - 4)} было переведено ${params[3]}${pay.card.currency} на 📱 ${params[2]}`);
                 } else {
@@ -130,15 +133,14 @@ class TelegramBot {
 
     /**
     * Команда списка транзакций по карте
-    * @param {Object} user Объект пользователя
     * @param {String} cardNumber номер карты
     * @param {String} phone телефон
     * @param {String} amount сумма палтежа
     * 
     */
-    async makeMobilePayment(user, cardNumber, phone, amount) {
+    async makeMobilePayment(cardNumber, phone, amount) {
         try {
-            const cards = await this.cards(user.id);
+            const cards = await this.cards(this.user.id);
             const card = await cards.getOne({
                 cardNumber: {
                     '$regex': `${cardNumber}$`
@@ -148,7 +150,7 @@ class TelegramBot {
                 const contextMockForPayment = {
                     cards: cards,
                     users: this.users(),
-                    transactions: this.transactions(user.id),
+                    transactions: this.transactions(this.user.id),
                     params: {
                         id: card.id
                     },
@@ -179,14 +181,13 @@ class TelegramBot {
 
     /**
     * Команда списка транзакций по карте
-    * @param {Object} user Объект пользователя
     * 
     */
-    getTransactionsCommand(user) {
+    getTransactionsCommand() {
         this.bot.command('/last', async (ctx) => {
             const _card = ctx.message.text.substr(ctx.message.text.length - 4);
             if (_card && _card.length === 4) {
-                await this.getTransactions(_card, user, ctx);
+                await this.getTransactions(_card, this.user, ctx);
             } else {
                 ctx.reply(`🙄 This is invalid number, please enter last 4 digits of your card`);
             }
@@ -197,20 +198,19 @@ class TelegramBot {
     /**
     * Список транзакций по карте
     * @param {String} cardNumber карта пользователья
-    * @param {Object} user Объект пользователя
     * @param {Context} ctx контекст бота
     * 
     */
-    async getTransactions(cardNumber, user, ctx) {
+    async getTransactions(cardNumber, ctx) {
         try {
-            const cards = await this.cards(user.id);
+            const cards = await this.cards(this.user.id);
             const card = await cards.getOne({
                 cardNumber: {
                     '$regex': `${cardNumber}$`
                 }
             });
             if (card) {
-                const transactions = this.transactions(user.id);
+                const transactions = this.transactions(this.user.id);
                 const allTransactions = await transactions.getByCardId(card.id);
                 if (allTransactions && allTransactions.length > 0) {
                     ctx.reply(`Here is some of your latest transactions from
@@ -231,13 +231,13 @@ ${allTransactions.map((transaction) => `Sum: ${transaction.sum} ${CURRENCY_ENUM[
 
     /**
     * Команда списка карт пользователя
-    * @param {Object} user Объект пользователя
     * 
     */
-    getCardsListСommand(user) {
+    getCardsListСommand() {
         this.bot.command('/allcards', async (ctx) => {
+            logger.info(`Init command /allcards for ${this.user.email}`);
             try {
-                await this.getCardsList(user, ctx);
+                await this.getCardsList(ctx);
             } catch (err) {
                 logger.error(err.message);
             }
@@ -246,13 +246,12 @@ ${allTransactions.map((transaction) => `Sum: ${transaction.sum} ${CURRENCY_ENUM[
 
     /**
     * Команда списка карт пользователя
-    * @param {Object} user Объект пользователя
     * @param {Context} ctx контекст бота
     * 
     */
-    async getCardsList(user, ctx) {
+    async getCardsList(ctx) {
         try {
-            const allCards = await this.cards(user.id).getAll();
+            const allCards = await this.cards(this.user.id).getAll();
             if (allCards && allCards.length > 0) {
                 ctx.reply(allCards.map((card) => `
 💳 **** **** **** ${card.cardNumber.substr(card.cardNumber.length - 4)}
@@ -270,10 +269,9 @@ __________________________
 
     /**
     * Команда списка команд доступных у бота
-    * @param {Object} user Объект пользователя
     * 
     */
-    commandsList(user) {
+    commandsList() {
         this.bot.command('commands', (ctx) => {
             return ctx.reply('Available commands', Markup
                 .keyboard([
@@ -284,8 +282,8 @@ __________________________
                 .extra()
             );
         });
-        this.bot.hears('💳  Cards by buttons', async ctx => await this.cardsButtons(user, ctx));
-        this.bot.hears('💳  Inline cards list', async ctx => await this.getCardsList(user, ctx))
+        this.bot.hears('💳  Cards by buttons', async ctx => await this.cardsButtons(ctx));
+        this.bot.hears('💳  Inline cards list', async ctx => await this.getCardsList(ctx))
     }
 
     /**
@@ -302,8 +300,7 @@ __________________________
                         await this.users().addField({
                             "email": user.email
                         }, "chatId", ctx.chat.id);
-                        this.initChatId(user);
-                        logger.info(`${user.email} is loggedn in to Bot`);
+                        this.initChatId();
                         ctx.reply(`✅ Cool, you are signed in!
 Type: 
 /commands — to see available UI commands
@@ -324,27 +321,25 @@ Make sure you inserted correct key.`);
 
     /**
     * Команда списка карт пользователя в виде кнопок
-    * @param {Object} user Объект пользователя
     * 
     */
-    cardsButtonsCommand(user) {
+    cardsButtonsCommand() {
         this.bot.command('/cards', async (ctx) => {
-            await this.cardsButtons(user, ctx);
+            await this.cardsButtons(ctx);
         });
     }
 
     /**
     * Команда списка карт пользователя в виде кнопок
-    * @param {Object} user Объект пользователя
     * @param {Context} ctx контекст бота
     * 
     */
-    async cardsButtons(user, ctx) {
+    async cardsButtons(ctx) {
         this.bot.action(/.+/, (ctx, next) => {
-            this.getTransactions(ctx.match[0], user, ctx);
+            this.getTransactions(ctx.match[0], ctx);
         });
         try {
-            const allCards = await this.cards(user.id).getAll();
+            const allCards = await this.cards(this.user.id).getAll();
             return ctx.reply('<b>Select card to view transactions</b>', Extra.HTML().markup((m) => m.inlineKeyboard(allCards.map((card) => m.callbackButton(`💳  ${card.cardNumber.substr(card.cardNumber.length - 4)} — ${CURRENCY_ENUM[card.currency]}`, `${card.cardNumber.substr(card.cardNumber.length - 4)}`)))));
         } catch (err) {
             logger.error(err.message);
