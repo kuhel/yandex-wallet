@@ -22,7 +22,7 @@ const Withdraw = props => {
           />
         );
     
-    else if (paymentState.stage === 'contract')
+    else if (paymentState.stage === 'contract' && inactiveCardsList.length > 0)
         return (
           <WithdrawContract
             activeCard={ activeCard }

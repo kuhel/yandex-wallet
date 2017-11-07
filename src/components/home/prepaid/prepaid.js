@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PrepaidContract from './prepaid_contract';
 import { PrepaidSuccess, PrepaidError } from './prepaid_screens';
 
-import { getActiveCard, getFilteredCards, isExpiredCard} from '../../../selectors/cards';
+import { getActiveCard, getFilteredCards, isExpiredCard } from '../../../selectors/cards';
 import { payPrepaid, repeatePrepaidTransfer } from '../../../actions/payments';
 
 /**
@@ -18,29 +18,16 @@ const Prepaid = props => {
 		return null;
 	if (paymentState.stage === 'success')
 		return (
-			<PrepaidSuccess
-				transaction={ paymentState.transaction }
-				repeatPayment={ () => onRepeatPaymentClick() }
-			/>
-		);
-	
-	else if (paymentState.stage === 'contract')
+			<PrepaidSuccess transaction={ paymentState.transaction } repeatPayment={ () => onRepeatPaymentClick() } />
+			);
+	else if (paymentState.stage === 'contract' && inactiveCardsList.length > 0)
 		return (
-			<PrepaidContract
-				activeCard={ activeCard }
-				currencyState={ currencyState }
-				inactiveCardsList={ inactiveCardsList }
-				onPaymentSubmit={ (transaction, id, activeId) => onPaymentSubmit(transaction, id, activeId) }
-			/>
-		);
-	
+			<PrepaidContract activeCard={ activeCard } currencyState={ currencyState } inactiveCardsList={ inactiveCardsList } onPaymentSubmit={ (transaction, id, activeId) => onPaymentSubmit(transaction, id, activeId) } />
+			);
+
 	else return (
-			<PrepaidError
-				transaction={ paymentState.transaction }
-				error={ paymentState.error }
-				repeatPayment={ () => onRepeatPaymentClick() }
-			/>
-		);
+			<PrepaidError transaction={ paymentState.transaction } error={ paymentState.error } repeatPayment={ () => onRepeatPaymentClick() } />
+			);
 }
 
 Prepaid.propTypes = {
@@ -54,7 +41,7 @@ Prepaid.propTypes = {
 const mapStateToProps = state => ({
 	paymentState: state.payments.prepaidPayment,
 	activeCard: getActiveCard(state),
-  currencyState: state.currency,
+	currencyState: state.currency,
 	inactiveCardsList: getFilteredCards(state)
 });
 
