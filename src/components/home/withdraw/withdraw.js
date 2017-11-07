@@ -5,12 +5,14 @@ import { connect } from 'react-redux';
 import WithdrawContract from './withdraw_contract';
 import { WithdrawSuccess, WithdrawError } from './withdraw_screens';
 
-import { getActiveCard, getFilteredCards } from '../../../selectors/cards';
+import { getActiveCard, getFilteredCards, isExpiredCard } from '../../../selectors/cards';
 import { payWithdraw, repeateWithdrawTransfer } from '../../../actions/payments';
 
 const Withdraw = props => {
     const {paymentState, onRepeatPaymentClick, onPaymentSubmit, activeCard, currencyState, inactiveCardsList} = props;
 
+    if (isExpiredCard(activeCard.exp))
+		  return null;
     if (paymentState.stage === 'success')
         return (
           <WithdrawSuccess

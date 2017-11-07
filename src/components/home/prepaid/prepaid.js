@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PrepaidContract from './prepaid_contract';
 import { PrepaidSuccess, PrepaidError } from './prepaid_screens';
 
-import { getActiveCard, getFilteredCards } from '../../../selectors/cards';
+import { getActiveCard, getFilteredCards, isExpiredCard} from '../../../selectors/cards';
 import { payPrepaid, repeatePrepaidTransfer } from '../../../actions/payments';
 
 /**
@@ -14,6 +14,8 @@ import { payPrepaid, repeatePrepaidTransfer } from '../../../actions/payments';
 const Prepaid = props => {
 	const {paymentState, onRepeatPaymentClick, onPaymentSubmit, activeCard, currencyState, inactiveCardsList} = props;
 
+	if (isExpiredCard(activeCard.exp))
+		return null;
 	if (paymentState.stage === 'success')
 		return (
 			<PrepaidSuccess

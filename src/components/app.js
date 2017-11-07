@@ -16,7 +16,7 @@ body {
 #root {
   font-family: 'Open Sans';
   color: #000;
-  background-color: rgba(36, 36, 36, 0.75);
+  background-color: #fff;
 }
 `;
 
@@ -26,6 +26,7 @@ min-height: 863px;
 background-color: #fcfcfc;
 width: 100%;
 margin: 0px auto;
+box-shadow: 0 2px 6px 0 rgba(0,0,0,.15);
 @media (min-width: 1500px) { /* вот когда он больше сильно его разматывает по краям, не должно этого быть */ 
   width: 1370px;
 }
