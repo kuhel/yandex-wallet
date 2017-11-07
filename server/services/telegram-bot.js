@@ -301,26 +301,6 @@ Make sure you inserted correct key.`);
         return ctx.reply('<b>Select card to view transactions</b>', Extra.HTML().markup((m) => m.inlineKeyboard(allCards.map((card) => m.callbackButton(`💳  ${card.cardNumber.substr(card.cardNumber.length - 4)} — ${CURRENCY_ENUM[card.currency]}`, `${card.cardNumber.substr(card.cardNumber.length - 4)}`)))
         ));
     }
-
-    /**
-    * Отправляет Telegram-оповещение пользователю
-    *
-    * @param {Object} notificationParams параметры нотификации
-    */
-    sendNotification(notificationParams) {
-        const {chatId} = notificationParams.user;
-        const {card, phone, amount} = notificationParams;
-        const cardNumberSecure = card.cardNumber.substr(card.cardNumber.length - 4);
-        var message;
-        if (notificationParams.type === 'paymentMobile') {
-            message = `С вашей 💳  **** **** **** ${cardNumberSecure} было переведено ${amount}${card.currency} на 📱 ${phone}`;
-        } else {
-            message = `На вашу 💳  **** **** **** ${cardNumberSecure} поступило ${amount}${card.currency}`;
-        }
-        if (chatId) {
-            this.bot.telegram.sendMessage(chatId, message);
-        }
-    }
 }
 
 module.exports = new TelegramBot();

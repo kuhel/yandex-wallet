@@ -1,8 +1,6 @@
 const Telegraf = require('telegraf')
-// const Extra = require('telegraf/extra')
 const session = require('telegraf/session')
 const {TELEGRAM_TOKEN} = require('../config-env');
-// const { reply } = Telegraf
 
 const bot = new Telegraf(TELEGRAM_TOKEN)
 
@@ -25,9 +23,25 @@ To start receiving notifications please type:
 /getupdates <Telegram Secret Key>`);
 });
 
-const catPhoto = 'http://lorempixel.com/400/200/cats/'
-bot.command('cat', ({replyWithPhoto}) => replyWithPhoto(catPhoto))
-
+/**
+* Отправляет Telegram-оповещение пользователю
+*
+* @param {Object} notificationParams параметры нотификации
+*/
+bot.sendNotification = (notificationParams) => {
+    const {chatId} = notificationParams.user;
+    const {card, phone, amount} = notificationParams;
+    const cardNumberSecure = card.cardNumber.substr(card.cardNumber.length - 4);
+    var message;
+    if (notificationParams.type === 'paymentMobile') {
+        message = `С вашей 💳  **** **** **** ${cardNumberSecure} было переведено ${amount}${card.currency} на 📱 ${phone}`;
+    } else {
+        message = `На вашу 💳  **** **** **** ${cardNumberSecure} поступило ${amount}${card.currency}`;
+    }
+    if (chatId) {
+        bot.telegram.sendMessage(chatId, message);
+    }
+}
 
 // Start polling
 bot.startPolling()
