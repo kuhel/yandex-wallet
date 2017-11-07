@@ -16,7 +16,7 @@ const CardLayout = styled.div`
 	border-radius: 4px;
 	background-color: ${({bgColor, active}) => active ? bgColor : 'rgba(255, 255, 255, 0.1)'};
 	cursor:${({cursor})=> cursor? cursor :'pointer'};
-	border: ${({isExpired}) => !isExpired ? '0' : '2px solid red'};
+	border: ${({isExpired}) => !isExpired ? '0' : 'thin solid red'};
 `;
 
 const CardLogo = styled.div`
