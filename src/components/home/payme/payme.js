@@ -63,6 +63,7 @@ class Payme extends Component {
             if (userName === contract.userName)
                 return (
                   <PaymeError
+                    isSameUser
                     transaction={ { sum: contract ? contract.sum ? contract.sum : 0 : 0 } }
                     error={ 'Вы не можете переводить деньги сами себе...' }
                     repeatPayment={ () => onRepeatPaymentClick() }
