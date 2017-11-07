@@ -4,6 +4,7 @@ import styled from 'emotion/react';
 import Select from './select';
 import CardEditButton from './card_edit_button';
 import CardShareButton from './card_share_button';
+import {isExpiredCard} from '../../selectors/cards';
 
 const CardLayout = styled.div`
 	position: relative;
@@ -11,10 +12,11 @@ const CardLayout = styled.div`
 	height: 164px;
 	box-sizing: border-box;
 	margin-bottom: ${({isSingle}) => (isSingle ? 0 : '15px')};
-	padding: 25px 20px 20px 25px;
+	padding: ${({isExpired}) => !isExpired ? '25px 20px 20px 25px' : '25px 18px 18px 25px'};
 	border-radius: 4px;
 	background-color: ${({bgColor, active}) => active ? bgColor : 'rgba(255, 255, 255, 0.1)'};
 	cursor:${({cursor})=> cursor? cursor :'pointer'};
+	border: ${({isExpired}) => !isExpired ? '0' : '2px solid red'};
 `;
 
 const CardLogo = styled.div`
@@ -103,7 +105,7 @@ class Card extends Component {
 			const {bgColor, bankLogoUrl, brandLogoUrl} = selectedCard.theme;
 
 			return (
-				<CardLayout active={true} bgColor={bgColor} isCardsEditable={isCardsEditableIconActive} isSingle={isSingle}>
+				<CardLayout active={true} bgColor={bgColor} isCardsEditable={isCardsEditableIconActive} isSingle={isSingle} isExpired={isExpiredCard(data.exp)}>
 					<CardLogo url={bankLogoUrl} active={true} />
 					<CardSelect value={selectedCard.number} onChange={id => this.props.onCardChange(id)}>
 						{data.map((card, index) => (
@@ -123,7 +125,7 @@ class Card extends Component {
 			const {onCardNumberChange, onCardCurrencyChange} = this.props;
 
 			return (
-				<CardLayout active={true} bgColor={bgColor} isCardsEditable={false} isSingle={true} cursor={'auto'}>
+				<CardLayout active={true} bgColor={bgColor} isCardsEditable={false} isSingle={true} cursor={'auto'} isExpired={isExpiredCard(data.exp)}>
 					<CardLogo url={bankLogoUrl} active={true} isTight={true} />
 					<CardNumberInput textColor={textColor} active={true} value={cardNumber} onChange={onCardNumberChange} isTight={true} />
           <CurrencySelect value={currencySign} onChange={sign => onCardCurrencyChange(sign)}>
@@ -141,11 +143,12 @@ class Card extends Component {
         const {active, onClick, onChangeDeleteMode, onChangePaymeMode} = this.props;
 		const {number, theme, id, exp, currencySign} = data;
 
-        const {bgColor, textColor, bankLogoUrl, brandLogoUrl} = theme;
+		const {bgColor, textColor, bankLogoUrl, brandLogoUrl} = theme;
+		const isExpired = isExpiredCard(data.exp);
         const themedBrandLogoUrl = active ? brandLogoUrl : brandLogoUrl.replace(/-colored.svg$/, '-white.svg');
 
         return (
-			<CardLayout active={active} bgColor={bgColor} onClick={onClick} isCardsEditable={isCardsEditableIconActive} isSingle={isSingle}>
+			<CardLayout active={active} bgColor={bgColor} onClick={onClick} cursor={isExpired ? 'not-allowed' : 'pointer'}  isCardsEditable={isCardsEditableIconActive} isSingle={isSingle} isExpired={isExpired}>
 				<CardEditButton editable={isCardsEditableIconActive} id={id} onChangeBarMode={onChangeDeleteMode}/>
 				<CardShareButton shareable={isCardsPaymeIconActive} id={id} onClick={onChangePaymeMode}/>
 				<CardLogo url={bankLogoUrl} active={active} />

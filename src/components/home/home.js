@@ -12,7 +12,7 @@ import Websockets from '../../websockets';
 
 import { fetchCurrencies } from '../../actions/currency';
 
-import { getActiveCard } from '../../selectors/cards';
+import { getActiveCard, isExpiredCard } from '../../selectors/cards';
 import { getTransactionsByDays } from '../../selectors/transactions';
 
 const Workspace = styled.div`
@@ -38,6 +38,7 @@ class Home extends Component {
     const { transactions, activeCard, transactionsIsLoading } = this.props;
     if (activeCard) return (
       <Workspace>
+        {isExpiredCard(activeCard.exp) ? <h1 style={{margin : '15px', fontWeight: 'bold'}}>❌ Срок действия карты истёк</h1> : null}
         <History transactions={ transactions } activeCard={ activeCard } isLoading={ transactionsIsLoading } />
         <Prepaid />
         <MobilePayment />

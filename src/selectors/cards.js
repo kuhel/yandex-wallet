@@ -1,5 +1,5 @@
 import CardInfo from 'card-info';
-
+import moment from 'moment';
 import { createSelector } from 'reselect';
 
 /**
@@ -85,3 +85,13 @@ export const getFilteredCards = createSelector(
     [getActiveCardId, getPreparedCards],
     (activeCardId, cards) => cards.filter(card => card.id !== activeCardId)
 );
+
+export const isExpiredCard = (exp) => {
+    if(exp) {
+        const currentYear = moment();
+        const cardYear = moment(exp, 'MM/YY');
+        return cardYear <= currentYear;
+    } else {
+        return false;
+    }
+};

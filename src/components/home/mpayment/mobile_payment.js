@@ -7,7 +7,7 @@ import { MobilePaymentSuccess, MobilePaymentError } from './mobile_payment_scree
 
 import { payMobile, repeateMobileTransfer } from '../../../actions/payments';
 
-import { getActiveCard } from '../../../selectors/cards';
+import { getActiveCard, isExpiredCard } from '../../../selectors/cards';
 
 /**
  * Класс компонента MobilePayment
@@ -15,6 +15,8 @@ import { getActiveCard } from '../../../selectors/cards';
 const MobilePayment = props => {
 	const {paymentState, onRepeatPaymentClick, onPaymentSubmit, activeCard, currencyState} = props;
 
+	if (isExpiredCard(activeCard.exp))
+		return null;
 	if (paymentState.stage === 'success')
 		return (
 			<MobilePaymentSuccess
