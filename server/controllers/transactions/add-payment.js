@@ -29,7 +29,7 @@ module.exports = async ctx => {
 
 	if (ctx.isTelegramPayment) {
 		return 201;
-	} else if (!ctx.request.body.isTest) {
+	} else {
 		const notificationParams = {
 			type: transaction.type,
 			user: ctx.user,

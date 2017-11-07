@@ -160,8 +160,7 @@ describe('Transactions routes test', () => {
                 .set('Authorization', 'JWT ' + token)
                 .send({
                     phone: '79213334455',
-                    amount: 10,
-                    isTest: true
+                    amount: 10
                 })
                 .end((err, res) => {
                     res.should.have.status(201);
