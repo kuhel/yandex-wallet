@@ -5,13 +5,15 @@ module.exports = async (ctx) => {
             ctx.throw(400, 'properties required');
     
         const card = {
-            cardNumber,
+            cardNumber: String(cardNumber).replace(/\s/g,''),
             currency,
             exp,
             name,
             balance: Number(balance) || 0,
             userId: ctx.params.userId
         };
+        
+        console.log(card);
     
         try {
             await ctx.cards.validate(card);
