@@ -111,7 +111,7 @@ PaymeSuccess.propTypes = {
 	repeatPayment: PropTypes.func.isRequired
 };
 
-export const PaymeError = ({transaction, repeatPayment, error, returnToTrans}) => {
+export const PaymeError = ({isSameUser, transaction, repeatPayment, error, returnToTrans}) => {
 	const {sum, currency} = transaction;
 
 	return (
@@ -119,7 +119,7 @@ export const PaymeError = ({transaction, repeatPayment, error, returnToTrans}) =
 			<ErrorIcom />
 			<SectionGroup>
 				<Header>Ошибка</Header>
-				{sum>0 && <Section>
+				{!isSameUser && sum>0 && <Section>
 					<SectionLabel>Сумма:</SectionLabel>
 					<SectionValue>{sum} {getSignByCurrency(currency)}</SectionValue>
 				</Section>}
@@ -127,7 +127,7 @@ export const PaymeError = ({transaction, repeatPayment, error, returnToTrans}) =
 					<SectionValue>{error}</SectionValue>
 				</Section>
 			</SectionGroup>
-			<RepeatPayment onClick={repeatPayment}>Попробовать еще раз</RepeatPayment>
+			{ !isSameUser && <RepeatPayment onClick={repeatPayment}>Попробовать еще раз</RepeatPayment> }
 			<RepeatPayment onClick={returnToTrans}>Возвратиться к транзакциям</RepeatPayment>
 		</PrepaidLayoutError>
 	);
@@ -136,5 +136,6 @@ export const PaymeError = ({transaction, repeatPayment, error, returnToTrans}) =
 PaymeError.propTypes = {
 	transaction: PropTypes.object.isRequired,
 	repeatPayment: PropTypes.func.isRequired,
-	error:PropTypes.string.isRequired
+	error:PropTypes.string.isRequired,
+	isSameUser: PropTypes.bool,
 };
